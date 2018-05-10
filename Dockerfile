@@ -4,62 +4,52 @@ MAINTAINER Vohtr (https://vohtr.com)
 ARG METEOR_USER=meteor
 ARG METEOR_USER_DIR=/home/meteor
 
-# Install build-tools and dependencies
+# Install build tools and dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    apt-utils \
     bcrypt \
     bzip2 \
     curl \
     g++ \
     git-core \
     libfontconfig \
+    libgconf-2-4 \
+    libxi6 \
     make \
+    openjdk-8-jdk \
+    openjdk-8-jre-headless \
     python \
     unzip \
     xvfb \
     xz-utils \
+    chromium-chromedriver \
   && rm -rf /var/lib/apt/lists/*
 
-# Java is a Chimp pre-requisite because of Selenium
-ENV LANG C.UTF-8
-RUN { \
-    echo '#!/bin/sh'; \
-    echo 'set -e'; \
-    echo; \
-    echo 'dirname "$(dirname "$(readlink -f "$(which javac || which java)")")"'; \
-  } > /usr/local/bin/docker-java-home \
-  && chmod +x /usr/local/bin/docker-java-home
-RUN ln -svT "/usr/lib/jvm/java-8-openjdk-$(dpkg --print-architecture)" /docker-java-home
-ENV JAVA_HOME /docker-java-home
-ENV JAVA_VERSION 8u171
-ENV JAVA_DEBIAN_VERSION 8u171-b11-1~deb9u1
-ENV CA_CERTIFICATES_JAVA_VERSION 20170531+nmu1
-RUN set -ex; \
-  \
-  if [ ! -d /usr/share/man/man1 ]; then \
-    mkdir -p /usr/share/man/man1; \
-  fi; \
-  \
-  apt-get update; \
-  apt-get install -y \
-    openjdk-8-jdk="$JAVA_DEBIAN_VERSION" \
-    ca-certificates-java="$CA_CERTIFICATES_JAVA_VERSION" \
-  ; \
-  rm -rf /var/lib/apt/lists/*; \
-  \
-  [ "$(readlink -f "$JAVA_HOME")" = "$(docker-java-home)" ]; \
-  \
-  update-alternatives --get-selections | awk -v home="$(readlink -f "$JAVA_HOME")" 'index($3, home) == 1 { $2 = "manual"; print | "update-alternatives --set-selections" }'; \
-  update-alternatives --query java | grep -q 'Status: manual'
-RUN /var/lib/dpkg/info/ca-certificates-java.postinst configure
+# Set environment variables
+ENV LANG=C.UTF-8
+ENV LANGUAGE=C.UTF-8
+ENV LC_ALL=C.UTF-8
+ENV LC_NUMERIC=en_US.UTF-8
+ENV SELENIUM_STANDALONE_VERSION=3.5.0
+ENV SELENIUM_SUBDIR=$(echo '$SELENIUM_STANDALONE_VERSION' | cut -d'.' -f-2)
 
-# Install Chrome
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-RUN sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
-RUN apt-get update
-RUN apt-get install -y google-chrome-stable libexif-dev
+# Install Chrome.
+RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add
+RUN echo 'deb http://dl.google.com/linux/chrome/deb/ stable main' >> /etc/apt/sources.list.d/google-chrome.list
+RUN apt-get -y update
+RUN apt-get -y install google-chrome-stable
 
-# Install chimp
+# Install Selenium.
+RUN wget -N http://selenium-release.storage.googleapis.com/$SELENIUM_SUBDIR/selenium-server-standalone-$SELENIUM_STANDALONE_VERSION.jar -P ~/
+RUN sudo mv -f ~/selenium-server-standalone-$SELENIUM_STANDALONE_VERSION.jar /usr/local/bin/selenium-server-standalone.jar
+RUN sudo chown root:root /usr/local/bin/selenium-server-standalone.jar
+RUN sudo chmod 0755 /usr/local/bin/selenium-server-standalone.jar
+
+# Install Chimp
 RUN npm install -g chimp
 
+# Install Meteor
+RUN curl https://install.meteor.com/ | sh
+
 WORKDIR /app
-ENTRYPOINT [ "/usr/local/bin/chimp" ]
+ENTRYPOINT [ '/usr/local/bin/chimp' ]
