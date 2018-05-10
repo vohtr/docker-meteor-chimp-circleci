@@ -4,10 +4,16 @@ MAINTAINER Vohtr (https://vohtr.com)
 ARG METEOR_USER=meteor
 ARG METEOR_USER_DIR=/home/meteor
 
-# Install build tools
+# Install apt utils
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends \
     apt-utils \
+    software-properties-common \
+  && rm -rf /var/lib/apt/lists/*
+
+# Install build tools
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends \
     bcrypt \
     bzip2 \
     curl \
@@ -17,6 +23,7 @@ RUN apt-get install -y --no-install-recommends \
     libxi6 \
     make \
     python \
+    python-software-properties \
     unzip \
   && rm -rf /var/lib/apt/lists/*
 
