@@ -31,7 +31,7 @@ ENV LANGUAGE=C.UTF-8
 ENV LC_ALL=C.UTF-8
 ENV LC_NUMERIC=en_US.UTF-8
 ENV SELENIUM_STANDALONE_VERSION=3.5.0
-ENV SELENIUM_SUBDIR=$(echo '$SELENIUM_STANDALONE_VERSION' | cut -d'.' -f-2)
+RUN SELENIUM_SUBDIR=$(echo '$SELENIUM_STANDALONE_VERSION' | cut -d'.' -f-2)
 
 # Install Chrome.
 RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add
