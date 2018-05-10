@@ -4,22 +4,29 @@ MAINTAINER Vohtr (https://vohtr.com)
 ARG METEOR_USER=meteor
 ARG METEOR_USER_DIR=/home/meteor
 
-# Install build tools and dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install build tools
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends \
     apt-utils \
     bcrypt \
     bzip2 \
     curl \
     g++ \
     git-core \
-    libfontconfig \
     libgconf-2-4 \
     libxi6 \
     make \
-    openjdk-8-jdk \
-    openjdk-8-jre-headless \
     python \
     unzip \
+  && rm -rf /var/lib/apt/lists/*
+
+# Install dependencies
+RUN add-apt-repository ppa:openjdk-r/ppa
+RUN apt-get update
+RUN apt-get install -y --no-install-recommends \
+    libfontconfig \
+    openjdk-8-jdk \
+    openjdk-8-jre-headless \
     xvfb \
     xz-utils \
     chromium-chromedriver \
