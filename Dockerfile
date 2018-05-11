@@ -1,39 +1,23 @@
-FROM node:8.11.1
+FROM openjdk:8-jdk
+
 MAINTAINER Vohtr (https://vohtr.com)
+
+USER root
 
 ARG METEOR_USER=meteor
 ARG METEOR_USER_DIR=/home/meteor
 
-# Install apt utils
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends \
-    apt-utils \
-    software-properties-common \
-  && rm -rf /var/lib/apt/lists/*
-
-# Install build tools
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends \
-    bcrypt \
-    bzip2 \
-    curl \
-    g++ \
-    git-core \
-    libgconf-2-4 \
-    libxi6 \
-    make \
-    python \
-    python-software-properties \
-    unzip \
-  && rm -rf /var/lib/apt/lists/*
+# Install Node
+RUN apt-get install -y curl \
+  && curl -sL https://deb.nodesource.com/setup_9.x | bash - \
+  && apt-get install -y nodejs \
+  && curl -L https://www.npmjs.com/install.sh | sh
+RUN npm install -g grunt grunt-cli
 
 # Install dependencies
-RUN add-apt-repository ppa:openjdk-r/ppa
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends \
     libfontconfig \
-    openjdk-8-jdk \
-    openjdk-8-jre-headless \
     xvfb \
     xz-utils \
     chromium-chromedriver \
@@ -47,17 +31,34 @@ ENV LC_NUMERIC=en_US.UTF-8
 ENV SELENIUM_STANDALONE_VERSION=3.5.0
 RUN SELENIUM_SUBDIR=$(echo '$SELENIUM_STANDALONE_VERSION' | cut -d'.' -f-2)
 
-# Install Chrome.
-RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add
-RUN echo 'deb http://dl.google.com/linux/chrome/deb/ stable main' >> /etc/apt/sources.list.d/google-chrome.list
-RUN apt-get -y update
-RUN apt-get -y install google-chrome-stable
+# Install Chrome
+ARG CHROME_VERSION="google-chrome-stable"
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+  && echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list \
+  && apt-get update -qqy \
+  && apt-get -qqy install \
+    ${CHROME_VERSION:-google-chrome-stable} \
+  && rm /etc/apt/sources.list.d/google-chrome.list \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-# Install Selenium.
-RUN wget -N http://selenium-release.storage.googleapis.com/$SELENIUM_SUBDIR/selenium-server-standalone-$SELENIUM_STANDALONE_VERSION.jar -P ~/
-RUN sudo mv -f ~/selenium-server-standalone-$SELENIUM_STANDALONE_VERSION.jar /usr/local/bin/selenium-server-standalone.jar
-RUN sudo chown root:root /usr/local/bin/selenium-server-standalone.jar
-RUN sudo chmod 0755 /usr/local/bin/selenium-server-standalone.jar
+USER seluser
+
+# Install Chromedriver
+ARG CHROME_DRIVER_VERSION="latest"
+RUN CD_VERSION=$(if [ ${CHROME_DRIVER_VERSION:-latest} = "latest" ]; then echo $(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE); else echo $CHROME_DRIVER_VERSION; fi) \
+  && echo "Using chromedriver version: "$CD_VERSION \
+  && wget --no-verbose -O /tmp/chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/$CD_VERSION/chromedriver_linux64.zip \
+  && rm -rf /opt/selenium/chromedriver \
+  && unzip /tmp/chromedriver_linux64.zip -d /opt/selenium \
+  && rm /tmp/chromedriver_linux64.zip \
+  && mv /opt/selenium/chromedriver /opt/selenium/chromedriver-$CD_VERSION \
+  && chmod 755 /opt/selenium/chromedriver-$CD_VERSION \
+  && sudo ln -fs /opt/selenium/chromedriver-$CD_VERSION /usr/bin/chromedriver
+
+# Configure Chrome launcher
+COPY generate_config /opt/bin/generate_config
+COPY chrome_launcher.sh /opt/google/chrome/google-chrome
+RUN /opt/bin/generate_config > /opt/selenium/config.json
 
 # Install Chimp
 RUN npm install -g chimp
