@@ -5,26 +5,30 @@ MAINTAINER Vohtr (https://vohtr.com)
 USER root
 
 # Install build tools
-RUN apt-get update -yq && \
-  apt-get install -yq \
+RUN apt-get update && apt-get install -y \
     apt-utils \
     build-essential \
     curl \
     git \
     python \
     python-software-properties \
-    software-properties
+    software-properties-common \
+  && rm -rf /var/lib/apt/lists/*
 
 # Install NodeJS
 RUN curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
-  apt-get install -yq \
-  nodejs \
-  npm
+  apt-get update && apt-get install -y \
+    nodejs \
+    npm \
+  && rm -rf /var/lib/apt/lists/*
 RUN ln -s /usr/bin/nodejs /usr/bin/node
 
 # Confirm Node & NPM installation
-RUN which node; node -v; which npm; npm -v; \
-  npm ls -g --depth=0
+RUN which node \
+  && node -v \
+  && which npm \
+  && npm -v \
+  && npm ls -g --depth=0
 
 # Update NPM
 RUN npm install -g npm
