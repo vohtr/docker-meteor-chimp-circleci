@@ -1,7 +1,5 @@
 FROM selenium/standalone-chrome
-
 MAINTAINER Vohtr (https://vohtr.com)
-
 USER root
 
 # Install build tools
@@ -14,8 +12,6 @@ RUN apt-get update \
     python \
   && apt-get -y autoclean \
   && rm -rf /var/lib/apt/lists/*
-
-# Install NVM && NodeJS
 
 # NVM environment variables
 ENV NVM_DIR "/usr/local/nvm"
