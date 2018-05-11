@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl \
 
 # NVM environment variables
 
-ENV NVM_DIR /usr/local/nvm
+ENV NVM_DIR "/usr/local/nvm"
 ENV NVM_VERSION 0.33.11
 ENV NODE_VERSION 8.11.1
 
