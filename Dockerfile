@@ -2,13 +2,7 @@ FROM selenium/standalone-chrome
 
 MAINTAINER Vohtr (https://vohtr.com)
 
-USER root
-
 # Install Node & NPM
-
-RUN groupadd --gid 1000 node \
-  && useradd --uid 1000 --gid node --shell /bin/bash --create-home node
-
 # gpg keys listed at https://github.com/nodejs/node#release-team
 RUN set -ex \
   && for key in \
@@ -66,6 +60,14 @@ RUN set -ex \
   && rm yarn-v$YARN_VERSION.tar.gz.asc yarn-v$YARN_VERSION.tar.gz
 
 CMD [ "node" ]
+
+# Confirm Node & NPM installation
+ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
+ENV PATH=$PATH:/home/node/.npm-global/bin
+RUN which node
+RUN which npm
+RUN node -v
+RUN npm -v
 
 # Install WebdriverIO & Chimp
 RUN npm install -g webdriverio chimp
