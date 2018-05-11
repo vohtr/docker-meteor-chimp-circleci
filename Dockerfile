@@ -7,8 +7,11 @@ USER root
 # Install build tools
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
+    build-essential \
     curl \
+    g++ \
     git \
+    python \
   && apt-get -y autoclean \
   && rm -rf /var/lib/apt/lists/*
 
@@ -33,16 +36,11 @@ RUN /bin/bash -c 'source $NVM_DIR/nvm.sh; \
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
-# Confirm Node & NPM installation
-RUN which node \
-  && node -v \
-  && which npm \
-  && npm -v
-
 # Install WebdriverIO & Chimp
 RUN npm install -g \
-  webdriverio \
-  chimp
+    chai \
+    webdriverio \
+    chimp
 
 # Install Meteor
 ARG METEOR_USER=meteor
