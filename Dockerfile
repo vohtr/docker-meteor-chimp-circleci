@@ -5,7 +5,10 @@ MAINTAINER Vohtr (https://vohtr.com)
 USER root
 
 # Install build tools
-RUN apt-get update && apt-get install -y --no-install-recommends curl \
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    curl \
+    git \
   && apt-get -y autoclean \
   && rm -rf /var/lib/apt/lists/*
 
@@ -37,7 +40,9 @@ RUN which node \
   && npm -v
 
 # Install WebdriverIO & Chimp
-RUN npm install -g webdriverio chimp
+RUN npm install -g \
+  webdriverio \
+  chimp
 
 # Install Meteor
 ARG METEOR_USER=meteor
