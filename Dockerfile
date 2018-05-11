@@ -19,11 +19,11 @@ ENV NVM_VERSION 0.33.11
 ENV NODE_VERSION 8.11.1
 
 # Install NVM
-RUN curl --silent -o- https://raw.githubusercontent.com/creationix/nvm/v$NVM_VERSION/install.sh | bash
+RUN mkdir -p $NVM_DIR \
+    && curl --silent -o- https://raw.githubusercontent.com/creationix/nvm/v$NVM_VERSION/install.sh | bash
 
 # install NodeJS and NPM
-RUN mkdir -p $NVM_DIR \
-    && source $NVM_DIR/nvm.sh \
+RUN source $NVM_DIR/nvm.sh \
     && nvm install $NODE_VERSION \
     && nvm alias default $NODE_VERSION \
     && nvm use default
