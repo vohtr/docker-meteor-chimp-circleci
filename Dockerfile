@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl \
 # https://gist.github.com/remarkablemark/aacf14c29b3f01d6900d13137b21db3a
 
 # NVM environment variables
+
 ENV NVM_DIR /usr/local/nvm
 ENV NVM_VERSION 0.33.11
 ENV NODE_VERSION 8.11.1
@@ -21,7 +22,8 @@ ENV NODE_VERSION 8.11.1
 RUN curl --silent -o- https://raw.githubusercontent.com/creationix/nvm/v$NVM_VERSION/install.sh | bash
 
 # install NodeJS and NPM
-RUN source $NVM_DIR/nvm.sh \
+RUN mkdir -p $NVM_DIR \
+    && source $NVM_DIR/nvm.sh \
     && nvm install $NODE_VERSION \
     && nvm alias default $NODE_VERSION \
     && nvm use default
