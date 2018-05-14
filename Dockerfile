@@ -14,8 +14,6 @@ RUN apt-get update \
   && apt-get -y autoclean \
   && rm -rf /var/lib/apt/lists/*
 
-USER seluser
-
 # NVM environment variables
 ENV NVM_DIR "/usr/local/nvm"
 ENV NVM_VERSION 0.33.11
@@ -34,6 +32,8 @@ RUN /bin/bash -c 'source $NVM_DIR/nvm.sh; \
 # Add node and npm to path so the commands are available
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+
+USER seluser
 
 # Install WebdriverIO & Chimp
 # --unsafe-perm -> https://github.com/nodejs/node-gyp/issues/454
