@@ -1,7 +1,7 @@
 FROM selenium/standalone-chrome
 MAINTAINER Vohtr (https://vohtr.com)
 
-USER seluser
+USER root
 
 # Install build tools
 RUN apt-get update \
@@ -14,6 +14,8 @@ RUN apt-get update \
   && apt-get -y autoclean \
   && rm -rf /var/lib/apt/lists/*
 
+USER seluser
+
 # NVM environment variables
 ENV NVM_DIR "/usr/local/nvm"
 ENV NVM_VERSION 0.33.11
@@ -21,7 +23,7 @@ ENV NODE_VERSION 8.11.1
 
 # Install NVM
 RUN mkdir -p $NVM_DIR \
-    && curl --silent -o- https://raw.githubusercontent.com/creationix/nvm/v$NVM_VERSION/install.sh | bash
+  && curl --silent -o- https://raw.githubusercontent.com/creationix/nvm/v$NVM_VERSION/install.sh | bash
 
 # Install NodeJS and NPM
 RUN /bin/bash -c 'source $NVM_DIR/nvm.sh; \
@@ -35,7 +37,7 @@ ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 # Install WebdriverIO & Chimp
 # --unsafe-perm -> https://github.com/nodejs/node-gyp/issues/454
-RUN npm install \
+RUN npm install -g --unsafe-perm \
     chai \
     webdriverio \
     chimp
