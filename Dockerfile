@@ -10,6 +10,7 @@ RUN apt-get update \
     curl \
     g++ \
     git \
+    ssh \
     python \
   && apt-get -y autoclean \
   && rm -rf /var/lib/apt/lists/*
