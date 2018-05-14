@@ -33,8 +33,6 @@ RUN /bin/bash -c 'source $NVM_DIR/nvm.sh; \
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
-USER seluser
-
 # Install WebdriverIO & Chimp
 # --unsafe-perm -> https://github.com/nodejs/node-gyp/issues/454
 RUN npm install -g --unsafe-perm \
@@ -44,3 +42,5 @@ RUN npm install -g --unsafe-perm \
 
 # Install Meteor
 RUN curl https://install.meteor.com/ | sh
+
+USER seluser
