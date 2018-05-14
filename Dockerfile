@@ -1,6 +1,7 @@
 FROM selenium/standalone-chrome
 MAINTAINER Vohtr (https://vohtr.com)
-USER root
+
+USER seluser
 
 # Install build tools
 RUN apt-get update \
@@ -34,12 +35,10 @@ ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 # Install WebdriverIO & Chimp
 # --unsafe-perm -> https://github.com/nodejs/node-gyp/issues/454
-RUN npm install -g --unsafe-perm \
+RUN npm install \
     chai \
     webdriverio \
     chimp
 
 # Install Meteor
-ARG METEOR_USER=meteor
-ARG METEOR_USER_DIR=/home/meteor
 RUN curl https://install.meteor.com/ | sh
